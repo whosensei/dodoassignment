@@ -85,7 +85,7 @@ supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 https://your-project-ref.supabase.co/functions/v1/webhook-handler
 ```
 
-**My Project URL**: https://qokgsfxecndqtvqrnxyl.supabase.co/functions/v1/webhook-handler
+**My deployed webhook URL**: https://qokgsfxecndqtvqrnxyl.supabase.co/functions/v1/webhook-handler
 
 ### Test with Real Platform Webhooks
 
@@ -94,7 +94,7 @@ The best way to test webhooks is to trigger real events from the Dodo platform. 
 #### 1. Setup Webhook in Dodo Dashboard
 1. Go to **Dodo Dashboard** → **Developer** → **Webhooks**
 2. Click **"Add Webhook"**
-3. Enter your webhook URL: `https://qokgsfxecndqtvqrnxyl.supabase.co/functions/v1/webhook-handler`
+3. Enter your webhook URL: https://your-project-ref.supabase.co/functions/v1/webhook-handler
 4. Save the webhook configuration
 
 #### 2. Send Test Webhook
@@ -114,11 +114,6 @@ The best way to test webhooks is to trigger real events from the Dodo platform. 
 2. Click on your webhook to view **logs**
 3. Verify the webhook was sent successfully
 4. Check response status and any error messages
-
-#### 5. Expected Webhook Flow
-```
-Customer Created → Product Created → Subscription Created → Payment Succeeded
-```
 
 **Note**: Real webhooks from the platform will have valid signatures and will be processed successfully by the webhook handler.
 
