@@ -6,7 +6,7 @@ A Next.js app that integrates with Dodo Payments for subscription management.
 
 ### 1. Clone & Install
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/whosensei/dodoassignment.git
 cd dodoassn
 pnpm install
 # or
