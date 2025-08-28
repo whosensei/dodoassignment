@@ -195,3 +195,5 @@ https://your-project-ref.supabase.co/functions/v1/webhook-handler
 - **Authentication**: Supabase Auth
 - **Payments**: Dodo Payments API
 - **Webhooks**: Standard Webhooks library
+
+Timespent - started properly on Aug 28, barely surviving on dolo-650 🤒
