@@ -85,8 +85,6 @@ supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 https://your-project-ref.supabase.co/functions/v1/webhook-handler
 ```
 
-**My deployed webhook URL**: https://qokgsfxecndqtvqrnxyl.supabase.co/functions/v1/webhook-handler
-
 ### Test with Real Platform Webhooks
 
 The best way to test webhooks is to trigger real events from the Dodo platform. This ensures you're testing with actual webhook signatures and real data.
