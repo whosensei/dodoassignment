@@ -1,4 +1,4 @@
-
+//locally , setup using ngrok to use this
 import { NextRequest, NextResponse } from "next/server";
 import { Webhook, WebhookUnbrandedRequiredHeaders } from "standardwebhooks";
 import { supabaseAdmin } from "@/lib/supabaseClient";
