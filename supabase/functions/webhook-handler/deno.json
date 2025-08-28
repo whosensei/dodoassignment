@@ -1,0 +1,9 @@
+{
+  "imports": {},
+  "functions": {
+    "webhook-handler": {
+      "verify_jwt": false,
+      "no_verify_jwt": true
+    }
+  }
+}

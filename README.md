@@ -1,36 +1,197 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dodo Assignment - Payment Integration
 
-## Getting Started
+A Next.js app that integrates with Dodo Payments for subscription management.
 
-First, run the development server:
+## Install & Run Steps
 
+### 1. Clone & Install
 ```bash
-npm run dev
+git clone <your-repo-url>
+cd dodoassn
+pnpm install
 # or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Variables
+Create `.env.local` file in the root directory:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Dodo Payments
+DODO_API_KEY=your_dodo_api_key
+DODO_BASE_URL=https://api.dodopayments.com
+DODO_WEBHOOK_SECRET=your_webhook_secret
+```
 
-## Learn More
+### 3. Setup Database
+- Create Supabase project at [supabase.com](https://supabase.com)
+- Go to SQL Editor and run the contents of `supabase-schema.sql`
+- Copy your project URL and keys from Settings → API
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Deploy Webhook Function
+```bash
+# Login to Supabase CLI
+supabase login
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Link your project
+supabase link --project-ref your-project-ref
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Deploy webhook function
+supabase functions deploy webhook-handler
 
-## Deploy on Vercel
+# Set required secrets
+supabase secrets set DODO_WEBHOOK_SECRET=your_webhook_secret
+supabase secrets set SUPABASE_URL=your_supabase_url
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 5. Run the App
+```bash
+pnpm dev
+# or
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000)
+
+## Environment Variables Required
+
+### Next.js App (`.env.local`)
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+DODO_API_KEY=your_dodo_api_key
+DODO_BASE_URL=https://api.dodopayments.com
+DODO_WEBHOOK_SECRET=your_webhook_secret
+```
+
+### Supabase Edge Function (Secrets)
+```bash
+supabase secrets set DODO_WEBHOOK_SECRET=your_webhook_secret
+supabase secrets set SUPABASE_URL=your_supabase_url
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+## Testing Webhooks
+
+### Webhook URL
+```
+https://your-project-ref.supabase.co/functions/v1/webhook-handler
+```
+
+**My Project URL**: https://qokgsfxecndqtvqrnxyl.supabase.co/functions/v1/webhook-handler
+
+### Test with Real Platform Webhooks
+
+The best way to test webhooks is to trigger real events from the Dodo platform. This ensures you're testing with actual webhook signatures and real data.
+
+#### 1. Setup Webhook in Dodo Dashboard
+1. Go to **Dodo Dashboard** → **Developer** → **Webhooks**
+2. Click **"Add Webhook"**
+3. Enter your webhook URL: `https://qokgsfxecndqtvqrnxyl.supabase.co/functions/v1/webhook-handler`
+4. Save the webhook configuration
+
+#### 2. Send Test Webhook
+1. In the webhook settings, click **"Testing"**
+2. Click **"Send Test Example"**
+3. This will send a test webhook with valid signatures
+
+#### 3. Monitor Webhook Events
+1. Check your **Supabase dashboard** → **Table Editor** → `subscription_events`
+2. You should see webhook events like:
+   - `customer.created`
+   - `subscription.created` 
+   - `payment.succeeded`
+
+#### 4. Check Webhook Logs
+1. In Dodo Dashboard → **Developer** → **Webhooks**
+2. Click on your webhook to view **logs**
+3. Verify the webhook was sent successfully
+4. Check response status and any error messages
+
+#### 5. Expected Webhook Flow
+```
+Customer Created → Product Created → Subscription Created → Payment Succeeded
+```
+
+**Note**: Real webhooks from the platform will have valid signatures and will be processed successfully by the webhook handler.
+
+### Local Testing (Next.js route)
+Use ngrok to expose your local server:
+
+```bash
+# Install ngrok
+npm install -g ngrok
+
+# Start your app
+pnpm dev
+
+# In another terminal
+ngrok http 3000
+```
+
+Copy the ngrok URL and use it as your webhook endpoint in Dodo dashboard with /api/webhook.
+
+## Project Structure
+
+```
+app/
+├── api/           # API routes
+│   ├── auth/      # Authentication endpoints
+│   ├── products/  # Product management
+│   ├── subscriptions/ # Subscription management
+│   ├── user/      # User profile management
+│   └── webhook/   # Legacy webhook route (fallback)
+├── components/    # React components
+│   ├── AuthForm.tsx
+│   ├── Dashboard.tsx
+│   ├── ProductCreation.tsx
+│   ├── SubscriptionCreation.tsx
+│   └── UserProfile.tsx
+└── page.tsx       # Main page
+lib/
+├── dodoClient.ts      # Dodo client
+└── supabaseClient.ts  # Supabase client
+supabase/
+└── functions/
+    └── webhook-handler/  # Supabase Edge Function for webhooks
+```
+
+## Getting API Keys
+
+- **Supabase**: Go to [supabase.com](https://supabase.com) → Create project → Settings → API
+- **Dodo**: Go to [dodopayments.com](https://dodopayments.com) → API Keys section
+
+## Deployment
+
+### Edge Functions
+```bash
+# Deploy webhook function
+supabase functions deploy webhook-handler
+
+# Set secrets (required for production)
+supabase secrets set DODO_WEBHOOK_SECRET=your_secret
+supabase secrets set SUPABASE_URL=your_supabase_url
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+### Update Dodo Webhook URL
+In your Dodo dashboard, update the webhook endpoint to your deployed function URL:
+```
+https://your-project-ref.supabase.co/functions/v1/webhook-handler
+```
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Backend**: Next.js API routes, Supabase Edge Functions
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth
+- **Payments**: Dodo Payments API
+- **Webhooks**: Standard Webhooks library
