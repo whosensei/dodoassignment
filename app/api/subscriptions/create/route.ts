@@ -45,21 +45,30 @@ export async function POST(request: Request) {
     }
 
     const resp = await dodo.post('/subscriptions', payload)
-    console.log(resp.data.payment_link)
+    console.log('Dodo API Response:', resp.data)
     const sub = resp.data
 
-    await supabaseAdmin
+    const subscriptionData = {
+      dodo_subscription_id: sub.subscription_id || sub.id,
+      dodo_customer_id: customer_id,
+      product_id: sub.product_id || product_id,
+      billing_currency: sub.billing_currency || null,
+      current_period_start: sub.current_period_start ? new Date(sub.current_period_start).toISOString() : null,
+      current_period_end: sub.current_period_end ? new Date(sub.current_period_end).toISOString() : null,
+      next_billing_date: sub.next_billing_date ? new Date(sub.next_billing_date).toISOString() : null
+    }
+    
+    
+    const { data: insertResult, error: insertError } = await supabaseAdmin
       .from('subscriptions')
-      .upsert({
-        dodo_subscription_id: sub.subscription_id || sub.id,
-        dodo_customer_id: customer_id,
-        product_id: sub.product_id || product_id,
-        status: sub.status || 'active',
-        billing_currency: sub.billing_currency || null,
-        current_period_start: sub.current_period_start ? new Date(sub.current_period_start).toISOString() : null,
-        current_period_end: sub.current_period_end ? new Date(sub.current_period_end).toISOString() : null,
-        next_billing_date: sub.next_billing_date ? new Date(sub.next_billing_date).toISOString() : null
-      }, { onConflict: 'dodo_subscription_id' })
+      .upsert(subscriptionData, { onConflict: 'dodo_subscription_id' })
+    
+    if (insertError) {
+      console.error('Supabase insert error:', insertError)
+      throw new Error(`Database insert failed: ${insertError.message}`)
+    }
+    
+    console.log('Subscription inserted successfully:', insertResult)
 
     return NextResponse.json({ success: true, link: sub?.payment_link || null })
   } catch (err) {
